@@ -5,6 +5,8 @@ var fs = require('fs');
 var https = require('https');
 var hbs = require('handlebars');
 var qs = require('querystring');
+var path = require('path');
+
 
 /* StringHandler Object:
  * Usage:
@@ -34,7 +36,8 @@ StringHandler.prototype.getNext = function () {
 		this.incStr();
 	}
 	this.done[ret] = false;
-	setTimeout(this.validate,30000,ret);
+	var that = this;
+	setTimeout(function(){that.validate(ret)},5000);
 	return ret;
 };
 
@@ -70,6 +73,7 @@ StringHandler.prototype.incChar = function (index) {
 	return;
 };
 StringHandler.prototype.validate = function (string) {
+        console.log("string: "+string);
 	if (!this.done[string])
 	{
 		this.returns.push(string);
@@ -81,6 +85,10 @@ StringHandler.prototype.completed = function (string) {
 
 
 var app = express();
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+
 app.use(cookieParser());
 app.use(require("connect").session({ secret: 'keyboard cat'}))
 var mongoose = require('mongoose');
@@ -90,16 +98,16 @@ db.once('open', function callback() {
 
 });
 var hashSchema = new mongoose.Schema({
-	name: Number,
+	name: String,
 	stringHandler: mongoose.Schema.Types.Mixed
 });
 
 var Hash = mongoose.model('Hash', hashSchema);
 mongoose.connect('mongodb://localhost/test');
 
-
+var handlerArray = [];
 app.get('/', function(req, res){
-
+        handlerArray.push(new StringHandler(req.query.name));
 	var hash = new Hash({
 		name: req.query.name,
 		stringHandler: new StringHandler(req.query.name)
@@ -129,7 +137,7 @@ app.get('/', function(req, res){
 	});
 });
 
-app.get('/hashing', function(req, res){
+app.all('/hashing', function(req, res){
 	fs.readFile('./hashing.hbs', function(err, data){
 		if(err) throw err;
 		var template = hbs.compile(data.toString());
@@ -179,6 +187,30 @@ app.get('/admin', function(req, res){
 		
 	});
 });
+
+app.all('/getload', function(req, res){
+	if (handlerArray.length === 0)
+	{
+	    
+	    res.send({work: false});
+	}
+	else
+	{
+	    res.send({work: true, string: handlerArray[0].getNext(), hash: handlerArray[0].hashString});
+	}
+});
+
+app.get('/report', function(req, res){
+	if (handlerArray.length)
+	{
+	    handlerArray[0].completed(req.query.string);
+	    console.log("finished hashing for string space: " + req.query.string);
+	}
+	res.send(req.query);
+});
+
+
+
 
 var port = Number(process.env.PORT || 5000 );
 	app.listen(port, function() {
