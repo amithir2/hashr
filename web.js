@@ -36,18 +36,18 @@ app.get('/', function(req, res){
 				if(err) return console.error(err);
 			});
 		}
-		else
-		{
-			Hash.findOne( {}, function(err, obj) {
-				if (err) return console.error(err);
-				hash = obj;
-			});
-		}
 		fs.readFile('./index.hbs', function(err, data){
 			if(err) throw err;
 			var template = hbs.compile(data.toString());
-			var sh = new StringHandler(hash.name);
-			res.send(template(sh));
+			Hash.findOne( {}, function(err, obj) {
+				if (err) return console.error(err);
+				hash = obj;
+				var sh;
+				if( hash !== null ){
+					sh = new StringHandler(hash.name);
+				}
+				res.send(template(sh));
+			});
 		});
 	});
 });
