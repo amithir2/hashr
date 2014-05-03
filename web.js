@@ -102,7 +102,7 @@ function StringHandler(str) {
       if (this.returns.length)
       {
 	  ret = this.returns[0];
-	  this.returns = this.returns.splice(0,1);
+	  this.returns = this.returns.splice(1);
       }
       else
       {
