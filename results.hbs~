@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html style="height:100%">
+	<head>
+		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+		<link type = "text/css" rel = "stylesheet" href = "css/style.css" />
+		<ul>
+			<li class="active"><a href="#" id = Home data-toggle = "tab">Home</a></li>
+			<li><a href="#" id = Admin data-toggle = "tab">Admin</a></li>
+			<li><a href="#" id = Hashing data-toggle = "tab">Contribute to Hashing</a></li>
+		</ul>	
+		<script>
+		$(document).on("click", "#Home", function(){
+			window.location = '/';
+		});
+		$(document).on("click", "#Admin", function(){
+			window.location = '/admin';
+		});
+		$(document).on("click", "#Hashing", function(){
+			window.location = '/hashing';
+		});
+	</script>
+		<title>Results</title>
+		{{name}}
+	</head>
+	<body style="font-family:'Calibri'; text-align: center; height:100%">
+		<div class="vertical-align-middle">
+		<h1 style="color:#000000; font-size:40px;">Results</h1>
+	</body>
+</html>
