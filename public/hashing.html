@@ -1,0 +1,63 @@
+ 
+<!DOCTYPE html>
+<html style="height:100%">
+	<head>
+		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+		<script src="md5.js"></script>
+		<script src="string.js"></script>
+		<title>Currently Hashing</title>
+	</head>
+	<body style="font-family:'Calibri'; text-align: center; height:100%">
+		<div class="vertical-align-middle">
+		<h1 style="color:#000000; font-size:40px;">Currently Hashing</h1>
+		<button id="results" style="background:#66CCFF; color:#000000; border-radius:20px; font-family:'Calibri'; font-size:20px;"><strong>See Results</strong></button>
+		</div>
+		<script>
+		$( document ).ready(hasher);
+		
+		function hasher()
+		{
+			jQuery.ajaxSetup({async:false});
+				//var test = true;
+				$.get( "/getload", function( data ) {
+					console.log(data);
+					var load = data;
+					if (load.work)
+					{
+						var handler = new StringHandler(null);
+						if (load.string !== "")
+						{
+						    handler.curPos = handler.firstOfLength(3);
+						    console.log("starting at "+handler.curPos);
+						}
+						var string = handler.getNext();
+						handler.completed(string);
+						var unfinished = true;
+						while (unfinished)
+						{
+							var hashStr = string.concat(load.string);
+							if (hex_md5(hashStr) === load.hash)
+							{
+								console.log(hashStr+" is a match!");
+							}
+							string = handler.getNext();
+							handler.completed(string);
+							if (string.length > 10) unfinished = false;
+						}
+						setTimeout(hasher,0);
+					}
+					else
+					{
+					    setTimeout(hasher,2000);
+					}
+					//test = false;
+				});
+			
+		    
+		
+		}
+		</script>
+
+	</body>
+</html>
