@@ -110,7 +110,7 @@ function StringHandler(str) {
 	  this.incStr();
       }
       this.done[ret] = false;
-      setTimeout(this.validate(ret),30000);
+      setTimeout(this.validate,30000,ret);
       return ret;
    };
    
