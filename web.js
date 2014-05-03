@@ -123,7 +123,6 @@ app.get('/', function(req, res){
 				if( hash !== null ){
 					sh = hash.stringHandler;
 				}
-				console.log(obj);
 				res.send(template(sh));
 			});
 		});
@@ -134,7 +133,15 @@ app.get('/hashing', function(req, res){
 	fs.readFile('./hashing.hbs', function(err, data){
 		if(err) throw err;
 		var template = hbs.compile(data.toString());
-		res.send(template());
+		Hash.findOne( {}, function(err, obj) {
+			if (err) return console.error(err);
+			hash = obj;
+			var sh;
+			if( hash !== null ){
+				sh = hash.stringHandler;
+			}
+			res.send(template(sh));
+		});
 	});
 });
 
