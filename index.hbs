@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html style="height:100%">
+	<head>
+		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+		<title>String Hasher</title>
+	</head>
+	<body style="font-family:'Calibri'; text-align: center; height:100%">
+		<div class="vertical-align-middle">
+		<h1 style="color:#000000; font-size:40px;">String Hasher</h1>
+		<button id="start" style="background:#66CCFF; color:#000000; border-radius:20px; font-family:'Calibri'; font-size:20px;"><strong>Start Hashing</strong></button>
+		{{name}}
+		</div>
+		<script>
+			$(document).on("click", "#start", function(){
+				window.location = '/hashing';
+			});
+		</script>
+
+	</body>
+</html>
