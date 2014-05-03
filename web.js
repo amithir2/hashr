@@ -46,7 +46,8 @@ app.get('/', function(req, res){
 		fs.readFile('./index.hbs', function(err, data){
 			if(err) throw err;
 			var template = hbs.compile(data.toString());
-			res.send(template(hash));
+			var sh = new StringHandler(hash.name);
+			res.send(template(sh));
 		});
 	});
 });
@@ -71,6 +72,8 @@ app.get('/results', function(req, res){
 		res.send(template(hash));
 	});
 	// clear Hash from database
+	// This actually clears the database before we send hash 
+	// to ./results.hbs so that is bad
 	Hash.count( function(err,count) {
 		if (err) return console.error(err);
 		while ( count > 0 )
