@@ -3,6 +3,9 @@
 	<head>
 		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 		<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+		<script src="md5.js"></script>
+		<script src="string.js"></script>
+		
 		<link type = "text/css" rel = "stylesheet" href = "css/style.css" />
 		<ul>
 			<li class="active"><a href="#" id = Home data-toggle = "tab">Home</a></li>
@@ -28,9 +31,57 @@
 		<!--<button id="results" style="background:#66CCFF; color:#000000; border-radius:20px; font-family:'Calibri'; font-size:20px;"><strong>See Results</strong></button>-->
 		</div>
 		<script>
-			$(document).on("click", "#results", function(){
-				window.location = '/results';
-			});
+		$( document ).ready(hasher);
+		
+		function hasher()
+		{
+			jQuery.ajaxSetup({async:false});
+				//var test = true;
+				$.get( "/getload", function( data ) {
+					var load = data;
+					if (load.work)
+					{
+						console.log("Processing string group \""+load.string+"\" for hash "+load.hash);
+						var handler = new StringHandler(null);
+						if (load.string !== "")
+						{
+						    handler.curPos = handler.firstOfLength(3);
+						    //console.log("starting at "+handler.curPos);
+						}
+						var string = handler.getNext();
+						handler.completed(string);
+						var unfinished = true;
+						while (unfinished)
+						{
+							var hashStr = string.concat(load.string);
+							if (hex_md5(hashStr) === load.hash)
+							{
+								console.log("Match found for hash "+load.hash+": "+hashStr);
+								$.post( "/report", {matched: true, matchString: hashStr, string: load.string, hash: load.hash},function (data) {});
+								setTimeout(hasher,2000);
+								return;
+							}
+							string = handler.getNext();
+							handler.completed(string);
+							if (string.length > 3) unfinished = false;
+						}
+						$.post( "/report", {matched: false, matchString: null, string: load.string, hash: load.hash},function (data) {});
+						setTimeout(hasher,0);
+					}
+					else
+					{
+					    setTimeout(hasher,2000);
+					    console.log("No work available");
+					}
+					//test = false;
+				}).fail(function(){
+					setTimeout(hasher,2000);
+					console.log("Failed to connect to server!");
+				});
+			
+		    
+		
+		}
 		</script>
 	</body>
 </html>

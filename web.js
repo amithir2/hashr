@@ -87,8 +87,7 @@ StringHandler.prototype.completed = function (string) {
 var app = express();
 
 app.use(express.static(path.join(__dirname, 'public')));
-
-
+app.use(require('connect').bodyParser());
 app.use(cookieParser());
 app.use(require("connect").session({ secret: 'keyboard cat'}))
 var mongoose = require('mongoose');
@@ -200,13 +199,23 @@ app.all('/getload', function(req, res){
 	}
 });
 
-app.get('/report', function(req, res){
-	if (handlerArray.length)
+app.all('/report', function(req, res){
+	//console.log(req.body);
+        if ((!handlerArray.length)||(handlerArray[0].hashString !== req.body.hash))
 	{
-	    handlerArray[0].completed(req.query.string);
-	    console.log("finished hashing for string space: " + req.query.string);
+	    res.send(null);
+	    return;
 	}
-	res.send(req.query);
+	handlerArray[0].completed(req.query.string);
+	if (req.body.matched == 'true')
+	{
+	     handlerArray = handlerArray.splice(1);
+	     console.log("hash "+req.body.hash+" solved: "+req.body.matchString);
+	    
+	}
+	
+	console.log("finished hashing for string space: " + req.body.string);
+	res.send(null);
 });
 
 
