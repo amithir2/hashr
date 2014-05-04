@@ -45,18 +45,18 @@ StringHandler.prototype.incStr = function () {
 	if (this.curPos==='')
 	{
 		this.curPos = this.charArray[0];
-		console.log(this.curPos);
+		//console.log(this.curPos);
 		return;
 	}
 	this.incChar(this.curPos.length-1);
 };
 StringHandler.prototype.incChar = function (index) {
-	console.log("incChar, index " + index);
+	//console.log("incChar, index " + index);
 	if (index < 0)
 	{
 		var str = this.charArray[0];
 		str = str.concat(this.curPos);
-		console.log("str="+str);
+		//console.log("str="+str);
 		this.curPos = str;
 		return;
 	}
@@ -67,13 +67,13 @@ StringHandler.prototype.incChar = function (index) {
 		return;
 	}
 	var a = this.charArray.indexOf(this.curPos.charAt(index));
-	console.log(a);
+	//console.log(a);
 	this.curPos = this.curPos.substring(0,index) + this.charArray[a+1] + this.curPos.substring(index+1);
 	//this.curPos.setCharAt(index,this.charArray[a+1]);
 	return;
 };
 StringHandler.prototype.validate = function (string) {
-        console.log("string: "+string);
+        //console.log("string: "+string);
 	if (!this.done[string])
 	{
 		this.returns.push(string);
@@ -206,7 +206,7 @@ app.all('/report', function(req, res){
 	    res.send(null);
 	    return;
 	}
-	handlerArray[0].completed(req.query.string);
+	handlerArray[0].completed(req.body.string);
 	if (req.body.matched == 'true')
 	{
 	     handlerArray = handlerArray.splice(1);

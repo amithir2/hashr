@@ -39,7 +39,7 @@ list-style-type: none;">
 		  <li class="list-group-item" style= "display: inline-block; position: absolute; left: 52%; width: 46%; border: none; font-weight: bold"">Local</li>
 		</ul>
 		</div>
-		<div id = sb1 style="
+		<div id = "sb1" style="
 			border-style: groove;
 			border-color:#7D9C9F #AD235E;
 			background: #ECECEC;
@@ -49,10 +49,12 @@ list-style-type: none;">
 			bottom: 5%;
 			right: 52%;
 			overflow: hidden;
-			padding: 2em;
-			overflow-y: auto;">
+			padding: 5px;
+			overflow-y: auto;
+			text-align: left;
+			font-family:monospace, prestige;">
 		</div>
-		<div id = sb2 style="
+		<div id = "sb2" style="
 			border-style: groove;
 			border-color:#7D9C9F #AD235E;
 			background: #ECECEC;
@@ -62,7 +64,9 @@ list-style-type: none;">
 			bottom: 5%;
 			right: 2%;
 			overflow-y: auto;    
-			padding: 2em;">
+			padding: 5px;
+			text-align: left;
+			font-family:monospace, prestige;">
 		</div>
 		<script>
 		$( document ).ready(hasher);
@@ -75,11 +79,11 @@ list-style-type: none;">
 					var load = data;
 					if (load.work)
 					{
-						console.log("Processing string group \""+load.string+"\" for hash "+load.hash);
+						$('#sb2').append("Processing string group \""+load.string+"\" for hash "+load.hash+"<br>");
 						var handler = new StringHandler(null);
 						if (load.string !== "")
 						{
-						    handler.curPos = handler.firstOfLength(3);
+						    handler.curPos = handler.firstOfLength(10);
 						    //console.log("starting at "+handler.curPos);
 						}
 						var string = handler.getNext();
@@ -90,14 +94,14 @@ list-style-type: none;">
 							var hashStr = string.concat(load.string);
 							if (hex_md5(hashStr) === load.hash)
 							{
-								console.log("Match found for hash "+load.hash+": "+hashStr);
+								$('#sb2').append("Match found for hash "+load.hash+": "+hashStr+"<br>");
 								$.post( "/report", {matched: true, matchString: hashStr, string: load.string, hash: load.hash},function (data) {});
 								setTimeout(hasher,2000);
 								return;
 							}
 							string = handler.getNext();
 							handler.completed(string);
-							if (string.length > 3) unfinished = false;
+							if (string.length > 10) unfinished = false;
 						}
 						$.post( "/report", {matched: false, matchString: null, string: load.string, hash: load.hash},function (data) {});
 						setTimeout(hasher,0);
@@ -105,12 +109,12 @@ list-style-type: none;">
 					else
 					{
 					    setTimeout(hasher,2000);
-					    console.log("No work available");
+					    $('#sb2').append("No work available<br>");
 					}
 					//test = false;
 				}).fail(function(){
 					setTimeout(hasher,2000);
-					console.log("Failed to connect to server!");
+					$('#sb2').append("Failed to connect to server!<br>");
 				});
 			
 		    
