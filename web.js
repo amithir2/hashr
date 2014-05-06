@@ -101,72 +101,73 @@ var hashSchema = new mongoose.Schema({
 	stringHandler: mongoose.Schema.Types.Mixed
 });
 
-var Hash = mongoose.model('Hash', hashSchema);
-mongoose.connect('mongodb://localhost/test');
+//var Hash = mongoose.model('Hash', hashSchema);
+//mongoose.connect('mongodb://localhost/test');
 
 var handlerArray = [];
 app.get('/', function(req, res){
-        handlerArray.push(new StringHandler(req.query.name));
-	var hash = new Hash({
-		name: req.query.name,
-		stringHandler: new StringHandler(req.query.name)
-	});
-	var count;
-	Hash.count( function(err, size) {
-		if (err) return console.error(err);
+		if ( req.query.name )
+        	handlerArray.push(new StringHandler(req.query.name));
+//	var hash = new Hash({
+//		name: req.query.name,
+//		stringHandler: new StringHandler(req.query.name)
+//	});
+//	var count;
+//	Hash.count( function(err, size) {
+//		if (err) return console.error(err);
 		// if a hashed string was provided, save to db, otherwise ignore
-		if( req.query.name !== undefined && size == 0 ) {
-			hash.save(function(err, hash) {
-				if(err) return console.error(err);
-			});
-		}
+//		if( req.query.name !== undefined && size == 0 ) {
+//			hash.save(function(err, hash) {
+//				if(err) return console.error(err);
+//			});
+//		}
 		fs.readFile('./index.hbs', function(err, data){
 			if(err) throw err;
 			var template = hbs.compile(data.toString());
-			Hash.findOne( {}, function(err, obj) {
-				if (err) return console.error(err);
-				hash = obj;
-				var sh;
-				if( hash !== null ){
-					sh = hash.stringHandler;
-				}
-				res.send(template(sh));
-			});
+//			Hash.findOne( {}, function(err, obj) {
+//				if (err) return console.error(err);
+//				hash = obj;
+//				var sh;
+//				if( hash !== null ){
+//					sh = hash.stringHandler;
+//				}
+				res.send(template());
+//			});
 		});
-	});
+//	});
 });
 
 app.all('/hashing', function(req, res){
 	fs.readFile('./hashing.hbs', function(err, data){
 		if(err) throw err;
 		var template = hbs.compile(data.toString());
-		Hash.findOne( {}, function(err, obj) {
-			if (err) return console.error(err);
-			hash = obj;
-			var sh;
-			if( hash !== null ){
-				sh = hash.stringHandler;
-			}
-			res.send(template(sh));
-		});
+//		Hash.findOne( {}, function(err, obj) {
+//			if (err) return console.error(err);
+//			hash = obj;
+//			var sh;
+//			if( hash !== null ){
+//				sh = hash.stringHandler;
+//			}
+			res.send(template());
+//		});
 	});
 });
 
 app.get('/results', function(req, res){
 	fs.readFile('./results.hbs', function(err, data){
 		if(err) throw err;
-		var hash;
-		Hash.findOne( {}, function(err, obj) {
-			if (err) return console.error(err);
-			hash = obj;
-		});
+//		var hash;
+//		Hash.findOne( {}, function(err, obj) {
+//			if (err) return console.error(err);
+//			hash = obj;
+//		});
 		var template = hbs.compile(data.toString());
-		res.send(template(hash));
+		res.send(template());
 	});
 	// clear Hash from database
 	// This actually clears the database before we send hash 
 	// to ./results.hbs so that is bad
-	Hash.count( function(err,count) {
+/*	Hash.count( function(err,count) {
 		if (err) return console.error(err);
 		while ( count > 0 )
 		{
@@ -175,7 +176,7 @@ app.get('/results', function(req, res){
 			});
 			count = count - 1;
 		}
-	});
+	});*/
 });
 
 app.get('/admin', function(req, res){
@@ -190,8 +191,8 @@ app.get('/admin', function(req, res){
 app.all('/getload', function(req, res){
 	if (handlerArray.length === 0)
 	{
-	    
 	    res.send({work: false});
+		
 	}
 	else
 	{

@@ -5,6 +5,8 @@ var fs = require('fs');
 var https = require('https');
 var hbs = require('handlebars');
 var qs = require('querystring');
+var path = require('path');
+
 
 /* StringHandler Object:
  * Usage:
@@ -34,7 +36,8 @@ StringHandler.prototype.getNext = function () {
 		this.incStr();
 	}
 	this.done[ret] = false;
-	setTimeout(this.validate,30000,ret);
+	var that = this;
+	setTimeout(function(){that.validate(ret)},5000);
 	return ret;
 };
 
@@ -42,18 +45,18 @@ StringHandler.prototype.incStr = function () {
 	if (this.curPos==='')
 	{
 		this.curPos = this.charArray[0];
-		console.log(this.curPos);
+		//console.log(this.curPos);
 		return;
 	}
 	this.incChar(this.curPos.length-1);
 };
 StringHandler.prototype.incChar = function (index) {
-	console.log("incChar, index " + index);
+	//console.log("incChar, index " + index);
 	if (index < 0)
 	{
 		var str = this.charArray[0];
 		str = str.concat(this.curPos);
-		console.log("str="+str);
+		//console.log("str="+str);
 		this.curPos = str;
 		return;
 	}
@@ -64,12 +67,13 @@ StringHandler.prototype.incChar = function (index) {
 		return;
 	}
 	var a = this.charArray.indexOf(this.curPos.charAt(index));
-	console.log(a);
+	//console.log(a);
 	this.curPos = this.curPos.substring(0,index) + this.charArray[a+1] + this.curPos.substring(index+1);
 	//this.curPos.setCharAt(index,this.charArray[a+1]);
 	return;
 };
 StringHandler.prototype.validate = function (string) {
+        //console.log("string: "+string);
 	if (!this.done[string])
 	{
 		this.returns.push(string);
@@ -81,6 +85,9 @@ StringHandler.prototype.completed = function (string) {
 
 
 var app = express();
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(require('connect').bodyParser());
 app.use(cookieParser());
 app.use(require("connect").session({ secret: 'keyboard cat'}))
 var mongoose = require('mongoose');
@@ -90,76 +97,77 @@ db.once('open', function callback() {
 
 });
 var hashSchema = new mongoose.Schema({
-	name: Number,
+	name: String,
 	stringHandler: mongoose.Schema.Types.Mixed
 });
 
-var Hash = mongoose.model('Hash', hashSchema);
-mongoose.connect('mongodb://localhost/test');
+//var Hash = mongoose.model('Hash', hashSchema);
+//mongoose.connect('mongodb://localhost/test');
 
-
+var handlerArray = [];
 app.get('/', function(req, res){
-
-	var hash = new Hash({
-		name: req.query.name,
-		stringHandler: new StringHandler(req.query.name)
-	});
-	var count;
-	Hash.count( function(err, size) {
-		if (err) return console.error(err);
+		if ( req.query.name )
+        handlerArray.push(new StringHandler(req.query.name));
+//	var hash = new Hash({
+//		name: req.query.name,
+//		stringHandler: new StringHandler(req.query.name)
+//	});
+//	var count;
+//	Hash.count( function(err, size) {
+//		if (err) return console.error(err);
 		// if a hashed string was provided, save to db, otherwise ignore
-		if( req.query.name !== undefined && size == 0 ) {
-			hash.save(function(err, hash) {
-				if(err) return console.error(err);
-			});
-		}
+//		if( req.query.name !== undefined && size == 0 ) {
+//			hash.save(function(err, hash) {
+//				if(err) return console.error(err);
+//			});
+//		}
 		fs.readFile('./index.hbs', function(err, data){
 			if(err) throw err;
 			var template = hbs.compile(data.toString());
-			Hash.findOne( {}, function(err, obj) {
-				if (err) return console.error(err);
-				hash = obj;
-				var sh;
-				if( hash !== null ){
-					sh = hash.stringHandler;
-				}
-				res.send(template(sh));
-			});
+//			Hash.findOne( {}, function(err, obj) {
+//				if (err) return console.error(err);
+//				hash = obj;
+//				var sh;
+//				if( hash !== null ){
+//					sh = hash.stringHandler;
+//				}
+				res.send(template());
+//			});
 		});
-	});
+//	});
 });
 
-app.get('/hashing', function(req, res){
+app.all('/hashing', function(req, res){
 	fs.readFile('./hashing.hbs', function(err, data){
 		if(err) throw err;
 		var template = hbs.compile(data.toString());
-		Hash.findOne( {}, function(err, obj) {
-			if (err) return console.error(err);
-			hash = obj;
-			var sh;
-			if( hash !== null ){
-				sh = hash.stringHandler;
-			}
-			res.send(template(sh));
-		});
+//		Hash.findOne( {}, function(err, obj) {
+//			if (err) return console.error(err);
+//			hash = obj;
+//			var sh;
+//			if( hash !== null ){
+//				sh = hash.stringHandler;
+//			}
+			res.send(template());
+//		});
 	});
 });
 
 app.get('/results', function(req, res){
 	fs.readFile('./results.hbs', function(err, data){
 		if(err) throw err;
-		var hash;
-		Hash.findOne( {}, function(err, obj) {
-			if (err) return console.error(err);
-			hash = obj;
-		});
+//		var hash;
+//		Hash.findOne( {}, function(err, obj) {
+//			if (err) return console.error(err);
+//			hash = obj;
+//		});
 		var template = hbs.compile(data.toString());
-		res.send(template(hash));
+		res.send(template());
 	});
 	// clear Hash from database
 	// This actually clears the database before we send hash 
 	// to ./results.hbs so that is bad
-	Hash.count( function(err,count) {
+/*	Hash.count( function(err,count) {
 		if (err) return console.error(err);
 		while ( count > 0 )
 		{
@@ -168,7 +176,7 @@ app.get('/results', function(req, res){
 			});
 			count = count - 1;
 		}
-	});
+	});*/
 });
 
 app.get('/admin', function(req, res){
@@ -179,6 +187,40 @@ app.get('/admin', function(req, res){
 		
 	});
 });
+
+app.all('/getload', function(req, res){
+	if (handlerArray.length === 0)
+	{
+	    res.send({work: false});
+		
+	}
+	else
+	{
+	    res.send({work: true, string: handlerArray[0].getNext(), hash: handlerArray[0].hashString});
+	}
+});
+
+app.all('/report', function(req, res){
+	//console.log(req.body);
+        if ((!handlerArray.length)||(handlerArray[0].hashString !== req.body.hash))
+	{
+	    res.send(null);
+	    return;
+	}
+	handlerArray[0].completed(req.body.string);
+	if (req.body.matched == 'true')
+	{
+	     handlerArray = handlerArray.splice(1);
+	     console.log("hash "+req.body.hash+" solved: "+req.body.matchString);
+	    
+	}
+	
+	console.log("finished hashing for string space: " + req.body.string);
+	res.send(null);
+});
+
+
+
 
 var port = Number(process.env.PORT || 5000 );
 	app.listen(port, function() {
