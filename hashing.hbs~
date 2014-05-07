@@ -3,6 +3,9 @@
 	<head>
 		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 		<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+		<script src="md5.js"></script>
+		<script src="string.js"></script>
+		
 		<link type = "text/css" rel = "stylesheet" href = "css/style.css" />
 		<link type = "text/css" rel = "stylesheet" href = "css/bootstrap.css" />
 		
@@ -23,48 +26,102 @@
 		});
 	</script>		
 		<title>Currently Hashing</title>
-	</head>
-	<body style="font-family:'Calibri'; text-align: center; height:100%">
 		<div class="vertical-align-middle">
 		<h1 style="color:#000000; font-size:40px;">Currently Hashing</h1>
 		</div>
-		<div id="navcontainer" style= "margin: 0;
-padding: 0;
-list-style-type: none;">
-		<ul class="list-group" >
-		  <li class="list-group-item" style= "display: inline-block; position: absolute; left: 2%; width: 46%; border: none; font-weight: bold;">Server</li>
-		  <li class="list-group-item" style= "display: inline-block; position: absolute; left: 52%; width: 46%; border: none; font-weight: bold"">Local</li>
-		</ul>
-		</div>
-		<div id = sb1 style="
-			border-style: groove;
-			border-color:#7D9C9F #AD235E;
-			background: #ECECEC;
-			position: absolute;
-			left: 2%;
-			top: 25%;
-			bottom: 5%;
-			right: 52%;
-			overflow: hidden;
-			padding: 2em;
-			overflow-y: auto;">
-		</div>
-		<div id = sb2 style="
-			border-style: groove;
-			border-color:#7D9C9F #AD235E;
-			background: #ECECEC;
-			position: absolute;
-			left: 52%;
-			top: 25%;
-			bottom: 5%;
-			right: 2%;
-			overflow-y: auto;    
-			padding: 2em;">
+		<div class="vertical-align-middle">
+		<h1 style="color:#000000; font-size:20px;">Summary</h1>
+	</head>
+	<body style="font-family:'Calibri'; text-align: center; height:100%">
+		
+		<div class = "container" style = "
+			left: 5%;
+			right: 5%;
+			top: 5%;
+			bottom: 5%; ">
+			<div id = "summary" style = "
+				position: absolute;
+				left: 5%;
+				right: 5%;
+				top: 25%;
+				bottom: 60%;
+				border-style: groove;
+				border-color:#7D9C9F #AD235E;
+				background: #ECECEC;">
+			</div>
+			<div id = "sb1" style="
+				border-style: groove;
+				border-color:#7D9C9F #AD235E;
+				background: #ECECEC;
+				position: absolute;
+				left: 5%;
+				right: 5%;
+				top: 40%;
+				bottom: 5%;
+				overflow: hidden;
+				padding: 5px;
+				overflow-y: auto;
+				text-align: left;
+				font-family:monospace, prestige;">
+			</div>
 		</div>
 		<script>
-			$(document).on("click", "#results", function(){
-				window.location = '/results';
-			});
+		$( document ).ready(hasher);
+		
+		function hasher()
+		{
+			jQuery.ajaxSetup({async:false});
+				//var test = true;
+				$.get( "/getload", function( data ) {
+					var load = data;
+					if (load.work)
+					{
+						$('#sb1').append("Processing string group \""+load.string+"\" for hash "+load.hash+"<br>");
+						
+						var handler = new StringHandler(null);
+						if (load.string !== "")
+						{
+						    handler.curPos = handler.firstOfLength(10);
+						    //console.log("starting at "+handler.curPos);
+						}
+						var string = handler.getNext();
+						handler.completed(string);
+						var unfinished = true;
+						while (unfinished)
+						{
+							var hashStr = string.concat(load.string);
+							if (hex_md5(hashStr) === load.hash)
+							{
+								$('#sb1').append("Match found for hash "+load.hash+": "+hashStr+"<br>");
+								$.post( "/report", {matched: true, matchString: hashStr, string: load.string, hash: load.hash},function (data) {});
+								setTimeout(hasher,2000);
+								return;
+							}
+							string = handler.getNext();
+							handler.completed(string);
+							if (string.length > 10) unfinished = false;
+						}
+						$.post( "/report", {matched: false, matchString: null, string: load.string, hash: load.hash},function (data) {});
+						setTimeout(hasher,0);
+					}
+					else
+					{
+					    setTimeout(hasher,2000);
+					    $('#sb1').append("No work available<br>");						
+					}
+					//test = false;
+				}).fail(function(){
+					setTimeout(hasher,2000);
+					$('#sb1').append("Failed to connect to server!<br>");
+				});
+				if ( $('#sb1').prop('scrollHeight') - $('#sb1').scrollTop() - $('#sb1').height() < 35 )
+				{
+						$('#sb1').scrollTop( $('#sb1').prop('scrollHeight') );
+				}
+			
+		    
+		
+		}
 		</script>
 	</body>
 </html>

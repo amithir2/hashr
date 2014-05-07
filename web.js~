@@ -105,9 +105,13 @@ var hashSchema = new mongoose.Schema({
 //mongoose.connect('mongodb://localhost/test');
 
 var handlerArray = [];
+var numHashers = 0;
+var hashRate = 0;
+var hashesPerSet = Math.pow(3, 10);
+var lastHash = {};
 app.get('/', function(req, res){
 		if ( req.query.name )
-        handlerArray.push(new StringHandler(req.query.name));
+        	handlerArray.push(new StringHandler(req.query.name));
 //	var hash = new Hash({
 //		name: req.query.name,
 //		stringHandler: new StringHandler(req.query.name)
@@ -216,12 +220,40 @@ app.all('/report', function(req, res){
 	}
 	
 	console.log("finished hashing for string space: " + req.body.string);
+	var addr = req.connection.remoteAddress;
+	if (!lastHash[addr]) numHashers++;
+	hashRate++;
+	lastHash[addr] = (new Date()).getTime();
+	console.log(lastHash);
+	setTimeout(function(){
+	    console.log(lastHash);
+	    if (lastHash[addr])
+	    {
+		if (((new Date()).getTime() -lastHash[addr])>15000)
+		{
+		    numHashers--;
+		    console.log(lastHash);
+		    lastHash[addr] = null;
+		}
+	    }
+	    hashRate--;
+	},20000);
 	res.send(null);
 });
 
-
+app.all('/stats', function(req, res){
+	res.send({numHashers: numHashers, hashRate: (hashRate*hashesPerSet/30)});
+});
 
 
 var port = Number(process.env.PORT || 5000 );
 	app.listen(port, function() {
 });
+
+	
+function followUp()
+{
+    
+    
+    
+}

@@ -26,47 +26,44 @@
 		});
 	</script>		
 		<title>Currently Hashing</title>
-	</head>
-	<body style="font-family:'Calibri'; text-align: center; height:100%">
 		<div class="vertical-align-middle">
 		<h1 style="color:#000000; font-size:40px;">Currently Hashing</h1>
 		</div>
-		<div id="navcontainer" style= "margin: 0;
-padding: 0;
-list-style-type: none;">
-		<ul class="list-group" >
-		  <li class="list-group-item" style= "display: inline-block; position: absolute; left: 2%; width: 46%; border: none; font-weight: bold;">Server</li>
-		  <li class="list-group-item" style= "display: inline-block; position: absolute; left: 52%; width: 46%; border: none; font-weight: bold"">Local</li>
-		</ul>
-		</div>
-		<div id = "sb1" style="
-			border-style: groove;
-			border-color:#7D9C9F #AD235E;
-			background: #ECECEC;
-			position: absolute;
-			left: 2%;
-			top: 25%;
-			bottom: 5%;
-			right: 52%;
-			overflow: hidden;
-			padding: 5px;
-			overflow-y: auto;
-			text-align: left;
-			font-family:monospace, prestige;">
-		</div>
-		<div id = "sb2" style="
-			border-style: groove;
-			border-color:#7D9C9F #AD235E;
-			background: #ECECEC;
-			position: absolute;
-			left: 52%;
-			top: 25%;
-			bottom: 5%;
-			right: 2%;
-			overflow-y: auto;    
-			padding: 5px;
-			text-align: left;
-			font-family:monospace, prestige;">
+		<div class="vertical-align-middle">
+		<h1 style="color:#000000; font-size:20px;">Summary</h1>
+	</head>
+	<body style="font-family:'Calibri'; text-align: center; height:100%">
+		
+		<div class = "container" style = "
+			left: 5%;
+			right: 5%;
+			top: 5%;
+			bottom: 5%; ">
+			<div id = "summary" style = "
+				position: absolute;
+				left: 5%;
+				right: 5%;
+				top: 25%;
+				bottom: 60%;
+				border-style: groove;
+				border-color:#7D9C9F #AD235E;
+				background: #ECECEC;">
+			</div>
+			<div id = "sb1" style="
+				border-style: groove;
+				border-color:#7D9C9F #AD235E;
+				background: #ECECEC;
+				position: absolute;
+				left: 5%;
+				right: 5%;
+				top: 40%;
+				bottom: 5%;
+				overflow: hidden;
+				padding: 5px;
+				overflow-y: auto;
+				text-align: left;
+				font-family:monospace, prestige;">
+			</div>
 		</div>
 		<script>
 		$( document ).ready(hasher);
@@ -79,7 +76,8 @@ list-style-type: none;">
 					var load = data;
 					if (load.work)
 					{
-						$('#sb2').append("Processing string group \""+load.string+"\" for hash "+load.hash+"<br>");
+						$('#sb1').append("Processing string group \""+load.string+"\" for hash "+load.hash+"<br>");
+						
 						var handler = new StringHandler(null);
 						if (load.string !== "")
 						{
@@ -94,7 +92,7 @@ list-style-type: none;">
 							var hashStr = string.concat(load.string);
 							if (hex_md5(hashStr) === load.hash)
 							{
-								$('#sb2').append("Match found for hash "+load.hash+": "+hashStr+"<br>");
+								$('#sb1').append("Match found for hash "+load.hash+": "+hashStr+"<br>");
 								$.post( "/report", {matched: true, matchString: hashStr, string: load.string, hash: load.hash},function (data) {});
 								setTimeout(hasher,2000);
 								return;
@@ -109,13 +107,17 @@ list-style-type: none;">
 					else
 					{
 					    setTimeout(hasher,2000);
-					    $('#sb2').append("No work available<br>");
+					    $('#sb1').append("No work available<br>");						
 					}
 					//test = false;
 				}).fail(function(){
 					setTimeout(hasher,2000);
-					$('#sb2').append("Failed to connect to server!<br>");
+					$('#sb1').append("Failed to connect to server!<br>");
 				});
+				if ( $('#sb1').prop('scrollHeight') - $('#sb1').scrollTop() - $('#sb1').height() < 35 )
+				{
+						$('#sb1').scrollTop( $('#sb1').prop('scrollHeight') );
+				}
 			
 		    
 		
