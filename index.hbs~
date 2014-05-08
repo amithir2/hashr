@@ -6,9 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 		<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
-    <link type = "text/css" rel = "stylesheet" href = "css/style.css" />
 	<link type = "text/css" rel = "stylesheet" href = "css/bootstrap.css" />
-	<script type="text/javascript" src="socket.io/socket.io.js"></script>
 	<ul class = "nav nav-pills">
 		<li class="active" style = "width: 30%;"><a href="#" id = Home data-toggle = "tab">Home</a></li>
 		<li style = "width: 30%;"><a href="#" id = Admin data-toggle = "tab">Add Job</a></li>
@@ -32,13 +30,6 @@
 		<div class="vertical-align-middle">
 		<h1 style="color:#000000; font-size:40px;">Hashr</h1>
 		<button type = "button" id="start" style="background:#428BCA; color:#FFFFFF; border-radius:20px; font-family:'Calibri'; font-size:20px;"><strong>Start Hashing</strong></button>
-		{{hashString}}
 		</div>
-		<script>
-			$(document).on("click", "#start", function(){
-				window.location = '/hashing';
-			});
-		</script>
-
 	</body>
 </html>

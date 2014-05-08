@@ -110,8 +110,6 @@ var hashRate = 0;
 var hashesPerSet = Math.pow(3, 10);
 var lastHash = {};
 app.get('/', function(req, res){
-		if ( req.query.name )
-        	handlerArray.push(new StringHandler(req.query.name));
 //	var hash = new Hash({
 //		name: req.query.name,
 //		stringHandler: new StringHandler(req.query.name)
@@ -142,6 +140,8 @@ app.get('/', function(req, res){
 });
 
 app.all('/hashing', function(req, res){
+	if ( req.query.name )
+        handlerArray.push(new StringHandler(req.query.name));
 	fs.readFile('./hashing.hbs', function(err, data){
 		if(err) throw err;
 		var template = hbs.compile(data.toString());
@@ -215,34 +215,40 @@ app.all('/report', function(req, res){
 	if (req.body.matched == 'true')
 	{
 	     handlerArray = handlerArray.splice(1);
-	     console.log("hash "+req.body.hash+" solved: "+req.body.matchString);
+	     //console.log("hash "+req.body.hash+" solved: "+req.body.matchString);
 	    
 	}
 	
-	console.log("finished hashing for string space: " + req.body.string);
+	//console.log("finished hashing for string space: " + req.body.string);
 	var addr = req.connection.remoteAddress;
 	if (!lastHash[addr]) numHashers++;
 	hashRate++;
 	lastHash[addr] = (new Date()).getTime();
-	console.log(lastHash);
+	//console.log(lastHash);
 	setTimeout(function(){
-	    console.log(lastHash);
+	  //  console.log(lastHash);
 	    if (lastHash[addr])
 	    {
 		if (((new Date()).getTime() -lastHash[addr])>15000)
 		{
 		    numHashers--;
-		    console.log(lastHash);
+	//	    console.log(lastHash);
 		    lastHash[addr] = null;
 		}
 	    }
 	    hashRate--;
-	},20000);
+	},5000);
 	res.send(null);
 });
 
 app.all('/stats', function(req, res){
 	res.send({numHashers: numHashers, hashRate: (hashRate*hashesPerSet/30)});
+});
+
+app.all('/clear', function(req,res){
+	while(handlerArray.length > 0) {
+		handlerArray.pop();
+	}
 });
 
 

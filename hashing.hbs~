@@ -5,8 +5,6 @@
 		<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
 		<script src="md5.js"></script>
 		<script src="string.js"></script>
-		
-		<link type = "text/css" rel = "stylesheet" href = "css/style.css" />
 		<link type = "text/css" rel = "stylesheet" href = "css/bootstrap.css" />
 		
 		<ul class = "nav nav-pills">
@@ -71,13 +69,17 @@
 		function hasher()
 		{
 			jQuery.ajaxSetup({async:false});
-				//var test = true;
+				var test = true;
+				$.get( "/stats", function( stats ) {
+							$('#summary').empty();
+							$('#summary').append("Number of Contributing Hashers: " + stats.numHashers + "<br>");
+							$('#summary').append("Hash Rate: " + stats.hashRate + "<br>");
+					});
 				$.get( "/getload", function( data ) {
 					var load = data;
 					if (load.work)
 					{
-						$('#sb1').append("Processing string group \""+load.string+"\" for hash "+load.hash+"<br>");
-						
+						$('#sb1').append("Processing string group \""+load.string+"\" for hash "+load.hash+"<br>");						
 						var handler = new StringHandler(null);
 						if (load.string !== "")
 						{
