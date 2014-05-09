@@ -64,11 +64,18 @@
 			</div>
 		</div>
 		<script>
-		$( document ).ready(hasher);
+		var ip;
+		$( document ).ready(function(){
+			jQuery.ajaxSetup({async:false});
+			$.get("http://jsonip.com", function(data){
+				ip = data.ip;
+				hasher();
+			});	
+		});
 		
 		function hasher()
 		{
-			jQuery.ajaxSetup({async:false});
+			
 				var test = true;
 				$.get( "/stats", function( stats ) {
 							$('#summary').empty();
@@ -95,7 +102,7 @@
 							if (hex_md5(hashStr) === load.hash)
 							{
 								$('#sb1').append("Match found for hash "+load.hash+": "+hashStr+"<br>");
-								$.post( "/report", {matched: true, matchString: hashStr, string: load.string, hash: load.hash},function (data) {});
+								$.post( "/report", {matched: true, matchString: hashStr, string: load.string, hash: load.hash, addr: ip},function (data) {});
 								setTimeout(hasher,2000);
 								return;
 							}
@@ -103,7 +110,7 @@
 							handler.completed(string);
 							if (string.length > 10) unfinished = false;
 						}
-						$.post( "/report", {matched: false, matchString: null, string: load.string, hash: load.hash},function (data) {});
+						$.post( "/report", {matched: false, matchString: null, string: load.string, hash: load.hash, addr: ip},function (data) {});
 						setTimeout(hasher,0);
 					}
 					else

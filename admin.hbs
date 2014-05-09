@@ -32,7 +32,12 @@
 			<input type="submit" value="Submit">
 			</fieldset>
 		</form>
-		<button type = "button" id="clear" style="background:#428BCA; color:#FFFFFF;  border-radius:20px; font-family:'Calibri'; font-size:20px; "><strong>Cancel All Jobs</strong></button>
+		<button type = "button" id="clear" style="background:#428BCA; color:#FFFFFF;  border-radius:20px; font-family:'Calibri'; font-size:20px; "><strong>Cancel All Jobs</strong></button><br>
+		<div style="text-align: center;">
+			<div style="width: 700px; background: #AAA; margain: auto; display: inline-block; text-align: left; padding: 3px;">
+			{{{body}}}
+			</div>
+		</div>
 		<script>
 		$(document).on("click", "#clear", function(){
 			$.post( "/clear", {}, function (data) {});
